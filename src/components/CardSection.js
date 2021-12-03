@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, createContext } from 'react';
 import { MDBInput } from "mdbreact";
 import { Container } from 'react-bootstrap'
 import Badge from 'react-bootstrap/Badge'
@@ -13,11 +13,12 @@ import { PieChartSection } from './PieChart'
 export const CardSection = ({ title, buttonName }) => {
     const [stat, setStat] = useState([0, 0, 0])
 
-    const textInput = React.createRef();
-    const card = React.createRef();
-    const cardTitle = React.createRef();
-    const question = React.createRef();
-    const resultRef = React.createRef();
+    const textInput = useRef(null);
+    const card = useRef(null);
+    const cardTitle = useRef(null);
+    const question = useRef(null);
+    const resultRef = useRef(null);
+    const separatorRef = useRef(null);
 
     let result = undefined;
     let background = 'dark';
@@ -37,12 +38,14 @@ export const CardSection = ({ title, buttonName }) => {
             total++;
             cardTitle.current.textContent = undefined;
             resultRef.current.textContent = undefined;
+            separatorRef.current.style.display= 'none'
         } else {
             failed++;
             total++;
             afterText = `${text} = ${answer}`
             cardTitle.current.textContent = afterText;
             resultRef.current.textContent = `Your answer ${result}`
+            separatorRef.current.style.display= 'block'
         }
         //background = result === answer ? 'Success' : 'Danger';
         //card.current.className=`card bg-${background.toLowerCase()}`;
@@ -59,11 +62,14 @@ export const CardSection = ({ title, buttonName }) => {
                         <Card.Header style={{ color: 'white' }}>
                             <h3>{title}</h3>
                         </Card.Header>
-                        <Stack direction="horizontal" gap={1}>
+
+                        <Stack direction="horizontal" gap={5}>
                             <Card.Title ref={cardTitle} style={{ color: 'yellow' }}>
                                 {afterText}</Card.Title>
+                            <div ref={separatorRef} className="vr" style={{ color: 'white', display: 'none' }} />
                             <Card.Title ref={resultRef} style={{ color: 'red' }}>{result}</Card.Title>
                         </Stack>
+
                         <Badge style={styling.badge} bg="danger"> {failed}</Badge>
                         <Badge style={styling.badge} bg="success">{passed}</Badge>
                         <Badge style={styling.badge} bg="warning">{total}</Badge>
@@ -71,11 +77,13 @@ export const CardSection = ({ title, buttonName }) => {
                             <h3>{text}</h3>
                         </Form.Text>
                         <Form.Control ref={textInput} type="text" placeholder="Answer" />
-                        <Button style={{ marginTop: 10 }} onClick={handleSubmit}>Go</Button>
+                        <Button style={{ marginTop: 10 }} onClick={handleSubmit}>{buttonName}</Button>
                     </Card.Body>
                 </Card>
-                <ChartSection passed={passed} failed={failed} total={total} />
-                <PieChartSection passed={passed} failed={failed} />
+                <CardContext.Provider value={{ passed, failed, total }} >
+                    <ChartSection />
+                    <PieChartSection />
+                </CardContext.Provider>
             </Stack>
         </Container>
     )
@@ -148,3 +156,5 @@ const styling = {
         borderColor: 'blue'
     }
 };
+
+export const CardContext = createContext(CardSection);

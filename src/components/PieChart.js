@@ -1,7 +1,11 @@
 import Chart from 'react-google-charts'
-import { Container } from "react-bootstrap";
+import {useContext} from 'react'
+import { CardContext } from './CardSection';
 
-export const PieChartSection = ({ passed, failed }) => {
+export const PieChartSection = () => {
+    
+    const { passed, failed } = useContext(CardContext)
+    
     const shouldDisplay = () => {
         const jsx = passed || failed ? (
             <Chart

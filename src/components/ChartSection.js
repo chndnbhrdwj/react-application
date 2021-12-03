@@ -1,8 +1,12 @@
 import Chart from "react-google-charts";
 import { Container } from "react-bootstrap";
+import {useContext} from 'react'
+import { CardContext } from './CardSection'
 
-export const ChartSection = ({ passed, failed, total }) => {
+export const ChartSection = () => {
 
+    const {passed, failed, total} = useContext(CardContext)
+    
     const shouldDisplay = () => {
         const jsx = total > 0 ? (
             <Chart
