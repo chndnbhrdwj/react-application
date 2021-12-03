@@ -19,7 +19,6 @@ export const CardSection = ({ title, buttonName }) => {
     const separatorRef = useRef(null);
 
     let result = undefined;
-    let background = 'dark';
     let afterText = undefined;
 
     let failed = stat[0],
@@ -67,7 +66,7 @@ export const CardSection = ({ title, buttonName }) => {
     return (
         <Container fluid>
             <Stack direction="horizontal" gap={5}>
-                <Card ref={card} style={{ width: '25rem', margin: '15px' }} bg={background.toLowerCase()}>
+                <Card ref={card} style={{ width: '25rem', margin: '15px' }} bg="dark">
                     <Card.Body>
                         <Card.Header style={{ color: 'white' }}>
                             <h3>{title}</h3>
