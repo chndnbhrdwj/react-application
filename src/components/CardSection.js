@@ -1,12 +1,10 @@
-import React, { useState, useRef, createContext } from 'react';
-import { MDBInput } from "mdbreact";
+import React, { useState, useRef, useEffect, createContext } from 'react';
 import { Container } from 'react-bootstrap'
 import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Stack from 'react-bootstrap/Stack'
-import FormControl from 'react-bootstrap/FormControl'
 import { ChartSection } from './ChartSection'
 import { PieChartSection } from './PieChart'
 
@@ -33,6 +31,8 @@ export const CardSection = ({ title, buttonName }) => {
     const handleSubmit = (event) => {
         result = (Number(textInput.current.value))
         textInput.current.value = '';
+        textInput.current.focus()
+
         if (result === answer) {
             passed++;
             total++;
@@ -51,6 +51,16 @@ export const CardSection = ({ title, buttonName }) => {
         //card.current.className=`card bg-${background.toLowerCase()}`;
         setStat([failed, passed, total])
     }
+
+    const onKeyUp = (event) => {
+        if (event.key === "Enter") {
+          handleSubmit(event);
+        }
+    }
+
+    useEffect(() => {
+        textInput.current.focus()
+    }, [])
 
     let text = `${operand1} * ${operand2}`;
 
@@ -76,7 +86,7 @@ export const CardSection = ({ title, buttonName }) => {
                         <Form.Text ref={question} style={{ color: 'white' }}>
                             <h3>{text}</h3>
                         </Form.Text>
-                        <Form.Control ref={textInput} type="text" placeholder="Answer" />
+                        <Form.Control ref={textInput} onKeyPress={onKeyUp} type="text" placeholder="Answer" />
                         <Button style={{ marginTop: 10 }} onClick={handleSubmit}>{buttonName}</Button>
                     </Card.Body>
                 </Card>
