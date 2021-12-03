@@ -1,5 +1,6 @@
 import { CardSection } from './components/CardSection'
 import { NavBar } from './components/NavBar'
+import { Record } from './components/Record';
 
 function App() {
 
@@ -7,7 +8,7 @@ function App() {
     <>
       <NavBar />
       <CardSection title="Multiply" buttonName="Submit" />
-
+      
     </>
   );
 }

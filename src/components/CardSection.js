@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, createContext } from 'react';
+import React, { useState, useRef, useEffect, createContext, useReducer } from 'react';
 import { Container } from 'react-bootstrap'
 import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
@@ -6,10 +6,33 @@ import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Stack from 'react-bootstrap/Stack'
 import { ChartSection } from './ChartSection'
+import { Record } from './Record'
 import { PieChartSection } from './PieChart'
 
+const reducer = (state, action) => {
+    switch (action.type) {
+        case 'RECORDS':
+            return {
+                stat: state.stat,
+                records: [...state.records, action.records]
+            }
+        case 'SUBMIT':
+            return {
+                stat: action.stat,
+                records: state.records
+            }
+        default:
+            return state
+    }
+}
+
 export const CardSection = ({ title, buttonName }) => {
-    const [stat, setStat] = useState([0, 0, 0])
+    //const [stat, setStat] = useState([0, 0, 0])
+
+    const [state, dispatch] = useReducer(reducer, {
+        stat: [0, 0, 0],
+        records: []
+    })
 
     const textInput = useRef(null);
     const card = useRef(null);
@@ -21,13 +44,18 @@ export const CardSection = ({ title, buttonName }) => {
     let result = undefined;
     let afterText = undefined;
 
-    let failed = stat[0],
-        passed = stat[1],
-        total = stat[2];
+    // records.push(['failed', 'passed', 'total'])
+    // records.push(['failed', 'passed', 'total'])
+    let failed = state.stat[0],
+        passed = state.stat[1],
+        total = state.stat[2];
 
     const [operand1, operand2, answer] = buildQuestion();
 
+    let text = `${operand1} x ${operand2}`;
+
     const handleSubmit = (event) => {
+        event.preventDefault();
         result = (Number(textInput.current.value))
         textInput.current.value = '';
         textInput.current.focus()
@@ -37,23 +65,22 @@ export const CardSection = ({ title, buttonName }) => {
             total++;
             cardTitle.current.textContent = undefined;
             resultRef.current.textContent = undefined;
-            separatorRef.current.style.display= 'none'
+            separatorRef.current.style.display = 'none'
         } else {
             failed++;
             total++;
             afterText = `${text} = ${answer}`
             cardTitle.current.textContent = afterText;
             resultRef.current.textContent = `Your answer ${result}`
-            separatorRef.current.style.display= 'block'
+            separatorRef.current.style.display = 'block'
+            dispatch({ type: 'RECORDS', records: [text, answer, result] })
         }
-        //background = result === answer ? 'Success' : 'Danger';
-        //card.current.className=`card bg-${background.toLowerCase()}`;
-        setStat([failed, passed, total])
+        dispatch({ type: 'SUBMIT', stat: [failed, passed, total] })
     }
 
     const onKeyUp = (event) => {
         if (event.key === "Enter") {
-          handleSubmit(event);
+            handleSubmit(event);
         }
     }
 
@@ -61,7 +88,7 @@ export const CardSection = ({ title, buttonName }) => {
         textInput.current.focus()
     }, [])
 
-    let text = `${operand1} * ${operand2}`;
+    //let text = `${operand1} * ${operand2}`;
 
     return (
         <Container fluid>
@@ -69,19 +96,22 @@ export const CardSection = ({ title, buttonName }) => {
                 <Card ref={card} style={{ width: '25rem', margin: '15px' }} bg="dark">
                     <Card.Body>
                         <Card.Header style={{ color: 'white' }}>
-                            <h3>{title}</h3>
+                        <Stack direction="horizontal" gap={5}>
+                                <h3>{title}</h3>
+                                <Badge style={styling.badge} bg="danger"> {failed}</Badge>
+                                <Badge style={styling.badge} bg="success">{passed}</Badge>
+                                <Badge style={styling.badge} bg="warning">{total}</Badge>
+                            </Stack>
                         </Card.Header>
 
-                        <Stack direction="horizontal" gap={5}>
+
+                        <Stack direction="horizontal" gap={3}>
                             <Card.Title ref={cardTitle} style={{ color: 'yellow' }}>
                                 {afterText}</Card.Title>
                             <div ref={separatorRef} className="vr" style={{ color: 'white', display: 'none' }} />
                             <Card.Title ref={resultRef} style={{ color: 'red' }}>{result}</Card.Title>
                         </Stack>
 
-                        <Badge style={styling.badge} bg="danger"> {failed}</Badge>
-                        <Badge style={styling.badge} bg="success">{passed}</Badge>
-                        <Badge style={styling.badge} bg="warning">{total}</Badge>
                         <Form.Text ref={question} style={{ color: 'white' }}>
                             <h3>{text}</h3>
                         </Form.Text>
@@ -94,9 +124,11 @@ export const CardSection = ({ title, buttonName }) => {
                     <PieChartSection />
                 </CardContext.Provider>
             </Stack>
+            <Record history={state.records} />
         </Container>
     )
 }
+
 
 const buildQuestion = () => {
     const operand1 = getRndInteger(12, 19)
@@ -120,10 +152,10 @@ const styling = {
     badge: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'flex-end',
         alignItems: 'flex-end',
         padding: 5,
-        margin: 5
+        margin: 1
     },
     subContainer: {
         padding: 5,
