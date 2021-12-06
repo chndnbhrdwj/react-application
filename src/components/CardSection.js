@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, createContext, useReducer } from 'react';
+import React, { useRef, useEffect, createContext, useReducer } from 'react';
 import { Container } from 'react-bootstrap'
 import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
@@ -9,7 +9,7 @@ import { ChartSection } from './ChartSection'
 import { Record } from './Record'
 import { PieChartSection } from './PieChart'
 
-const reducer = (state, action) => {
+const reducer = (state, action) => {  
     switch (action.type) {
         case 'RECORDS':
             return {
@@ -27,11 +27,11 @@ const reducer = (state, action) => {
 }
 
 export const CardSection = ({ title, buttonName }) => {
-    //const [stat, setStat] = useState([0, 0, 0])
-
+    const cardState = JSON.parse(sessionStorage.getItem("cardState"));
+    
     const [state, dispatch] = useReducer(reducer, {
-        stat: [0, 0, 0],
-        records: []
+        stat: cardState ? cardState.stat : [0, 0, 0],
+        records: cardState ? cardState.records : []
     })
 
     const textInput = useRef(null);
@@ -44,8 +44,6 @@ export const CardSection = ({ title, buttonName }) => {
     let result = undefined;
     let afterText = undefined;
 
-    // records.push(['failed', 'passed', 'total'])
-    // records.push(['failed', 'passed', 'total'])
     let failed = state.stat[0],
         passed = state.stat[1],
         total = state.stat[2];
@@ -88,7 +86,9 @@ export const CardSection = ({ title, buttonName }) => {
         textInput.current.focus()
     }, [])
 
-    //let text = `${operand1} * ${operand2}`;
+    useEffect(() => {
+        sessionStorage.setItem("cardState", JSON.stringify(state));
+    }, [state]);
 
     return (
         <Container fluid>
@@ -96,7 +96,7 @@ export const CardSection = ({ title, buttonName }) => {
                 <Card ref={card} style={{ width: '25rem', margin: '15px' }} bg="dark">
                     <Card.Body>
                         <Card.Header style={{ color: 'white' }}>
-                        <Stack direction="horizontal" gap={5}>
+                            <Stack direction="horizontal" gap={5}>
                                 <h3>{title}</h3>
                                 <Badge style={styling.badge} bg="danger"> {failed}</Badge>
                                 <Badge style={styling.badge} bg="success">{passed}</Badge>
